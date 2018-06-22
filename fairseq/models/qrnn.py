@@ -378,7 +378,7 @@ def base_architecture(args):
 
 
 @register_model_architecture('qrnn', 'qrnn_iwslt_de_en')
-def qrnn_wiseman_iwslt_de_en(args):
+def qrnn_iwslt_de_en(args):
     args.encoder_embed_dim = getattr(args, 'encoder_embed_dim', 256)
     args.encoder_dropout_in = getattr(args, 'encoder_dropout_in', 0)
     args.encoder_dropout_out = getattr(args, 'encoder_dropout_out', 0)
