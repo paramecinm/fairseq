@@ -5,10 +5,6 @@
 # the root directory of this source tree. An additional grant of patent rights
 # can be found in the PATENTS file in the same directory.
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/pytorch-qrnn')
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -20,8 +16,6 @@ from . import (
     FairseqEncoder, FairseqIncrementalDecoder, FairseqModel, register_model,
     register_model_architecture,
 )
-
-from torchqrnn import QRNN, QRNNLayer
 
 class ForgetMult(torch.nn.Module):
     def __init__(self):
