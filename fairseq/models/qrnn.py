@@ -13,7 +13,7 @@ from torch.autograd import Variable
 from fairseq import options, utils
 
 from . import (
-    FairseqEncoder, FairseqIncrementalDecoder, FairseqModel, register_model,
+    FairseqEncoder, FairseqDecoder, FairseqIncrementalDecoder, FairseqModel, register_model,
     register_model_architecture,
 )
 
@@ -262,7 +262,7 @@ class QrnnEncoder(FairseqEncoder):
         return int(1e5)  # an arbitrary large number
 
 
-class QrnnDecoder(FairseqIncrementalDecoder):
+class QrnnDecoder(FairseqDecoder):
     """Qrnn decoder."""
     def __init__(
         self, dictionary, embed_dim=512, hidden_size=512, out_embed_dim=512,
@@ -291,7 +291,7 @@ class QrnnDecoder(FairseqIncrementalDecoder):
             self.additional_fc = Linear(hidden_size, out_embed_dim)
         self.fc_out = Linear(out_embed_dim, num_embeddings, dropout=dropout_out)
 
-    def forward(self, prev_output_tokens, encoder_out_dict, incremental_state=None):
+    def forward(self, prev_output_tokens, encoder_out_dict):
         encoder_out = encoder_out_dict['encoder_out']
         encoder_padding_mask = encoder_out_dict['encoder_padding_mask']
 
@@ -331,6 +331,16 @@ class QrnnDecoder(FairseqIncrementalDecoder):
         x = self.fc_out(x)
 
         return x[:bsz, :], attn_scores[:bsz, :]
+
+    def reorder_encoder_out(self, encoder_out_dict, new_order):
+        encoder_out_dict['encoder_out'] = tuple(
+            eo.index_select(1, new_order)
+            for eo in encoder_out_dict['encoder_out']
+        )
+        if encoder_out_dict['encoder_padding_mask'] is not None:
+            encoder_out_dict['encoder_padding_mask'] = \
+                encoder_out_dict['encoder_padding_mask'].index_select(1, new_order)
+        return encoder_out_dict
 
 
     def max_positions(self):
